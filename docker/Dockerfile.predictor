@@ -1,0 +1,15 @@
+FROM python:3.8-slim
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install flask scikit-learn joblib numpy
+
+# Copy predictor code
+COPY src/model/predictor.py .
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+CMD ["python", "predictor.py"]

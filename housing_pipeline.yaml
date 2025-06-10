@@ -1,0 +1,459 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: housing-price-prediction-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.22, pipelines.kubeflow.org/pipeline_compilation_time: '2025-06-10T15:30:06.845285',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Train and deploy a linear
+      regression model for housing price prediction", "name": "Housing Price Prediction
+      Pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.22}
+spec:
+  entrypoint: housing-price-prediction-pipeline
+  templates:
+  - name: deploy-model-func
+    container:
+      args: [--model-input, /tmp/inputs/model_input/data, --deployment-name, housing-price-predictor,
+        '----output-paths', /tmp/outputs/Output/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def deploy_model_func(
+            model_input ,
+            deployment_name  = "housing-price-predictor"
+        )  :
+            print(f"Deploying model: {deployment_name}")
+            return f"Model deployed successfully as {deployment_name}"
+
+        def _serialize_str(str_value: str) -> str:
+            if not isinstance(str_value, str):
+                raise TypeError('Value "{}" has type "{}" instead of str.'.format(
+                    str(str_value), str(type(str_value))))
+            return str_value
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Deploy model func', description='')
+        _parser.add_argument("--model-input", dest="model_input", type=str, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--deployment-name", dest="deployment_name", type=str, required=False, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = deploy_model_func(**_parsed_args)
+
+        _outputs = [_outputs]
+
+        _output_serializers = [
+            _serialize_str,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:3.7
+    inputs:
+      artifacts:
+      - {name: train-model-func-model_output, path: /tmp/inputs/model_input/data}
+    outputs:
+      artifacts:
+      - {name: deploy-model-func-Output, path: /tmp/outputs/Output/data}
+    metadata:
+      annotations: {pipelines.kubeflow.org/task_display_name: Deploy Model, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"args": ["--model-input", {"inputPath": "model_input"}, {"if":
+          {"cond": {"isPresent": "deployment_name"}, "then": ["--deployment-name",
+          {"inputValue": "deployment_name"}]}}, "----output-paths", {"outputPath":
+          "Output"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf \"%s\"
+          \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n", "def
+          deploy_model_func(\n    model_input ,\n    deployment_name  = \"housing-price-predictor\"\n)  :\n    print(f\"Deploying
+          model: {deployment_name}\")\n    return f\"Model deployed successfully as
+          {deployment_name}\"\n\ndef _serialize_str(str_value: str) -> str:\n    if
+          not isinstance(str_value, str):\n        raise TypeError(''Value \"{}\"
+          has type \"{}\" instead of str.''.format(\n            str(str_value), str(type(str_value))))\n    return
+          str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Deploy
+          model func'', description='''')\n_parser.add_argument(\"--model-input\",
+          dest=\"model_input\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--deployment-name\",
+          dest=\"deployment_name\", type=str, required=False, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = deploy_model_func(**_parsed_args)\n\n_outputs
+          = [_outputs]\n\n_output_serializers = [\n    _serialize_str,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:3.7"}}, "inputs": [{"name": "model_input"}, {"default":
+          "housing-price-predictor", "name": "deployment_name", "optional": true,
+          "type": "String"}], "name": "Deploy model func", "outputs": [{"name": "Output",
+          "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"deployment_name":
+          "housing-price-predictor"}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.22
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: housing-price-prediction-pipeline
+    dag:
+      tasks:
+      - name: deploy-model-func
+        template: deploy-model-func
+        dependencies: [predict-func, train-model-func]
+        arguments:
+          artifacts:
+          - {name: train-model-func-model_output, from: '{{tasks.train-model-func.outputs.artifacts.train-model-func-model_output}}'}
+      - name: predict-func
+        template: predict-func
+        dependencies: [process-data-func, train-model-func]
+        arguments:
+          artifacts:
+          - {name: process-data-func-output_data, from: '{{tasks.process-data-func.outputs.artifacts.process-data-func-output_data}}'}
+          - {name: train-model-func-model_output, from: '{{tasks.train-model-func.outputs.artifacts.train-model-func-model_output}}'}
+      - {name: process-data-func, template: process-data-func}
+      - name: train-model-func
+        template: train-model-func
+        dependencies: [process-data-func]
+        arguments:
+          artifacts:
+          - {name: process-data-func-output_data, from: '{{tasks.process-data-func.outputs.artifacts.process-data-func-output_data}}'}
+  - name: predict-func
+    container:
+      args: [--model-input, /tmp/inputs/model_input/data, --data-input, /tmp/inputs/data_input/data,
+        --prediction-output, /tmp/outputs/prediction_output/data]
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'pandas' 'numpy' 'joblib' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip
+        install --quiet --no-warn-script-location 'pandas' 'numpy' 'joblib' --user)
+        && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n \
+        \   os.makedirs(os.path.dirname(file_path), exist_ok=True)\n    return file_path\n\
+        \ndef predict_func(\n    model_input ,\n    data_input ,\n    prediction_output\
+        \ \n)  :\n    import numpy as np\n    import pandas as pd\n    import joblib\n\
+        \    import os\n\n    print(\"Starting prediction generation\")\n\n    # Load\
+        \ test data\n    X_test = np.load(f'{data_input}/X_test.npy')\n\n    # Load\
+        \ model - try different paths\n    model = None\n\n    # Try loading from\
+        \ directory\n    if os.path.isdir(model_input):\n        model_path = os.path.join(model_input,\
+        \ 'model.pkl')\n        if os.path.exists(model_path):\n            model\
+        \ = joblib.load(model_path)\n            print(f\"Model loaded from: {model_path}\"\
+        )\n\n    # Try loading directly if it's a file\n    if model is None and os.path.isfile(model_input)\
+        \ and model_input.endswith('.pkl'):\n        model = joblib.load(model_input)\n\
+        \        print(f\"Model loaded directly from: {model_input}\")\n\n    if model\
+        \ is None:\n        raise FileNotFoundError(f\"Could not find model at: {model_input}\"\
+        )\n\n    # Make predictions\n    predictions = model.predict(X_test)\n\n \
+        \   # Save predictions\n    os.makedirs(prediction_output, exist_ok=True)\n\
+        \    pred_df = pd.DataFrame(predictions, columns=['predictions'])\n    pred_csv_path\
+        \ = os.path.join(prediction_output, 'predictions.csv')\n    pred_df.to_csv(pred_csv_path,\
+        \ index=False)\n\n    print(\"Prediction generation completed\")\n    print(f\"\
+        Total predictions: {len(predictions)}\")\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Predict\
+        \ func', description='')\n_parser.add_argument(\"--model-input\", dest=\"\
+        model_input\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
+        --data-input\", dest=\"data_input\", type=str, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"--prediction-output\", dest=\"prediction_output\",\
+        \ type=_make_parent_dirs_and_return_path, required=True, default=argparse.SUPPRESS)\n\
+        _parsed_args = vars(_parser.parse_args())\n\n_outputs = predict_func(**_parsed_args)\n"
+      image: python:3.7
+    inputs:
+      artifacts:
+      - {name: process-data-func-output_data, path: /tmp/inputs/data_input/data}
+      - {name: train-model-func-model_output, path: /tmp/inputs/model_input/data}
+    outputs:
+      artifacts:
+      - {name: predict-func-prediction_output, path: /tmp/outputs/prediction_output/data}
+    metadata:
+      annotations: {pipelines.kubeflow.org/task_display_name: Generate Predictions,
+        pipelines.kubeflow.org/component_spec: '{"implementation": {"container": {"args":
+          ["--model-input", {"inputPath": "model_input"}, "--data-input", {"inputPath":
+          "data_input"}, "--prediction-output", {"outputPath": "prediction_output"}],
+          "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip
+          install --quiet --no-warn-script-location ''pandas'' ''numpy'' ''joblib''
+          || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+          ''pandas'' ''numpy'' ''joblib'' --user) && \"$0\" \"$@\"", "sh", "-ec",
+          "program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3
+          -u \"$program_path\" \"$@\"\n", "def _make_parent_dirs_and_return_path(file_path:
+          str):\n    import os\n    os.makedirs(os.path.dirname(file_path), exist_ok=True)\n    return
+          file_path\n\ndef predict_func(\n    model_input ,\n    data_input ,\n    prediction_output
+          \n)  :\n    import numpy as np\n    import pandas as pd\n    import joblib\n    import
+          os\n\n    print(\"Starting prediction generation\")\n\n    # Load test data\n    X_test
+          = np.load(f''{data_input}/X_test.npy'')\n\n    # Load model - try different
+          paths\n    model = None\n\n    # Try loading from directory\n    if os.path.isdir(model_input):\n        model_path
+          = os.path.join(model_input, ''model.pkl'')\n        if os.path.exists(model_path):\n            model
+          = joblib.load(model_path)\n            print(f\"Model loaded from: {model_path}\")\n\n    #
+          Try loading directly if it''s a file\n    if model is None and os.path.isfile(model_input)
+          and model_input.endswith(''.pkl''):\n        model = joblib.load(model_input)\n        print(f\"Model
+          loaded directly from: {model_input}\")\n\n    if model is None:\n        raise
+          FileNotFoundError(f\"Could not find model at: {model_input}\")\n\n    #
+          Make predictions\n    predictions = model.predict(X_test)\n\n    # Save
+          predictions\n    os.makedirs(prediction_output, exist_ok=True)\n    pred_df
+          = pd.DataFrame(predictions, columns=[''predictions''])\n    pred_csv_path
+          = os.path.join(prediction_output, ''predictions.csv'')\n    pred_df.to_csv(pred_csv_path,
+          index=False)\n\n    print(\"Prediction generation completed\")\n    print(f\"Total
+          predictions: {len(predictions)}\")\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Predict
+          func'', description='''')\n_parser.add_argument(\"--model-input\", dest=\"model_input\",
+          type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--data-input\",
+          dest=\"data_input\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--prediction-output\",
+          dest=\"prediction_output\", type=_make_parent_dirs_and_return_path, required=True,
+          default=argparse.SUPPRESS)\n_parsed_args = vars(_parser.parse_args())\n\n_outputs
+          = predict_func(**_parsed_args)\n"], "image": "python:3.7"}}, "inputs": [{"name":
+          "model_input"}, {"name": "data_input"}], "name": "Predict func", "outputs":
+          [{"name": "prediction_output"}]}', pipelines.kubeflow.org/component_ref: '{}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.22
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: process-data-func
+    container:
+      args: [--output-data, /tmp/outputs/output_data/data, '----output-paths', /tmp/outputs/num_samples/data,
+        /tmp/outputs/num_features/data, /tmp/outputs/output_data_2/data]
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'pandas' 'numpy' 'scikit-learn' 'joblib' || PIP_DISABLE_PIP_VERSION_CHECK=1
+        python3 -m pip install --quiet --no-warn-script-location 'pandas' 'numpy'
+        'scikit-learn' 'joblib' --user) && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n \
+        \   os.makedirs(os.path.dirname(file_path), exist_ok=True)\n    return file_path\n\
+        \ndef process_data_func(\n    output_data_path \n)        :\n    import pandas\
+        \ as pd\n    import numpy as np\n    from sklearn.model_selection import train_test_split\n\
+        \    from sklearn.preprocessing import StandardScaler\n    import joblib\n\
+        \    import os\n\n    np.random.seed(42)\n    n_samples = 1000\n\n    data\
+        \ = {\n        'bedrooms': np.random.randint(1, 6, n_samples),\n        'bathrooms':\
+        \ np.random.randint(1, 4, n_samples),\n        'sqft_living': np.random.randint(500,\
+        \ 5000, n_samples),\n        'sqft_lot': np.random.randint(1000, 20000, n_samples),\n\
+        \        'floors': np.random.choice([1, 1.5, 2, 2.5, 3], n_samples),\n   \
+        \     'waterfront': np.random.choice([0, 1], n_samples, p=[0.9, 0.1]),\n \
+        \       'condition': np.random.randint(1, 6, n_samples),\n        'grade':\
+        \ np.random.randint(3, 13, n_samples),\n        'yr_built': np.random.randint(1900,\
+        \ 2022, n_samples),\n    }\n\n    df = pd.DataFrame(data)\n    df['price']\
+        \ = (\n        df['bedrooms'] * 20000 +\n        df['bathrooms'] * 15000 +\n\
+        \        df['sqft_living'] * 150 +\n        df['sqft_lot'] * 5 +\n       \
+        \ df['floors'] * 10000 +\n        df['waterfront'] * 100000 +\n        df['condition']\
+        \ * 5000 +\n        df['grade'] * 8000 +\n        (2022 - df['yr_built'])\
+        \ * -500 +\n        np.random.normal(0, 50000, n_samples)\n    )\n\n    df['price']\
+        \ = np.abs(df['price'])\n    df['age'] = 2022 - df['yr_built']\n\n    X =\
+        \ df.drop(['price', 'yr_built'], axis=1)\n    y = df['price']\n\n    X_train,\
+        \ X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\
+        \n    scaler = StandardScaler()\n    X_train_scaled = scaler.fit_transform(X_train)\n\
+        \    X_test_scaled = scaler.transform(X_test)\n\n    os.makedirs(output_data_path,\
+        \ exist_ok=True)\n    np.save(f'{output_data_path}/X_train.npy', X_train_scaled)\n\
+        \    np.save(f'{output_data_path}/X_test.npy', X_test_scaled)\n    np.save(f'{output_data_path}/y_train.npy',\
+        \ y_train.values)\n    np.save(f'{output_data_path}/y_test.npy', y_test.values)\n\
+        \n    joblib.dump(scaler, f'{output_data_path}/scaler.pkl')\n    joblib.dump(X.columns.tolist(),\
+        \ f'{output_data_path}/feature_names.pkl')\n\n    print(\"Data processing\
+        \ completed\")\n    print(f\"Training samples: {X_train_scaled.shape[0]}\"\
+        )\n    print(f\"Features: {X_train_scaled.shape[1]}\")\n\n    from collections\
+        \ import namedtuple\n    ProcessDataOutput = namedtuple('ProcessDataOutput',\
+        \ ['num_samples', 'num_features', 'output_data'])\n    return ProcessDataOutput(X_train_scaled.shape[0],\
+        \ X_train_scaled.shape[1], output_data_path)\n\ndef _serialize_int(int_value:\
+        \ int) -> str:\n    if isinstance(int_value, str):\n        return int_value\n\
+        \    if not isinstance(int_value, int):\n        raise TypeError('Value \"\
+        {}\" has type \"{}\" instead of int.'.format(\n            str(int_value),\
+        \ str(type(int_value))))\n    return str(int_value)\n\ndef _serialize_str(str_value:\
+        \ str) -> str:\n    if not isinstance(str_value, str):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of str.'.format(\n            str(str_value),\
+        \ str(type(str_value))))\n    return str_value\n\nimport argparse\n_parser\
+        \ = argparse.ArgumentParser(prog='Process data func', description='')\n_parser.add_argument(\"\
+        --output-data\", dest=\"output_data_path\", type=_make_parent_dirs_and_return_path,\
+        \ required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\"\
+        , dest=\"_output_paths\", type=str, nargs=3)\n_parsed_args = vars(_parser.parse_args())\n\
+        _output_files = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = process_data_func(**_parsed_args)\n\
+        \n_output_serializers = [\n    _serialize_int,\n    _serialize_int,\n    _serialize_str,\n\
+        \n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n\
+        \        os.makedirs(os.path.dirname(output_file))\n    except OSError:\n\
+        \        pass\n    with open(output_file, 'w') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: python:3.7
+    outputs:
+      artifacts:
+      - {name: process-data-func-num_features, path: /tmp/outputs/num_features/data}
+      - {name: process-data-func-num_samples, path: /tmp/outputs/num_samples/data}
+      - {name: process-data-func-output_data, path: /tmp/outputs/output_data/data}
+      - {name: process-data-func-output_data_2, path: /tmp/outputs/output_data_2/data}
+    metadata:
+      annotations: {pipelines.kubeflow.org/task_display_name: Data Processing, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"args": ["--output-data", {"outputPath": "output_data"},
+          "----output-paths", {"outputPath": "num_samples"}, {"outputPath": "num_features"},
+          {"outputPath": "output_data_2"}], "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1
+          python3 -m pip install --quiet --no-warn-script-location ''pandas'' ''numpy''
+          ''scikit-learn'' ''joblib'' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m
+          pip install --quiet --no-warn-script-location ''pandas'' ''numpy'' ''scikit-learn''
+          ''joblib'' --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n    os.makedirs(os.path.dirname(file_path),
+          exist_ok=True)\n    return file_path\n\ndef process_data_func(\n    output_data_path
+          \n)        :\n    import pandas as pd\n    import numpy as np\n    from
+          sklearn.model_selection import train_test_split\n    from sklearn.preprocessing
+          import StandardScaler\n    import joblib\n    import os\n\n    np.random.seed(42)\n    n_samples
+          = 1000\n\n    data = {\n        ''bedrooms'': np.random.randint(1, 6, n_samples),\n        ''bathrooms'':
+          np.random.randint(1, 4, n_samples),\n        ''sqft_living'': np.random.randint(500,
+          5000, n_samples),\n        ''sqft_lot'': np.random.randint(1000, 20000,
+          n_samples),\n        ''floors'': np.random.choice([1, 1.5, 2, 2.5, 3], n_samples),\n        ''waterfront'':
+          np.random.choice([0, 1], n_samples, p=[0.9, 0.1]),\n        ''condition'':
+          np.random.randint(1, 6, n_samples),\n        ''grade'': np.random.randint(3,
+          13, n_samples),\n        ''yr_built'': np.random.randint(1900, 2022, n_samples),\n    }\n\n    df
+          = pd.DataFrame(data)\n    df[''price''] = (\n        df[''bedrooms''] *
+          20000 +\n        df[''bathrooms''] * 15000 +\n        df[''sqft_living'']
+          * 150 +\n        df[''sqft_lot''] * 5 +\n        df[''floors''] * 10000
+          +\n        df[''waterfront''] * 100000 +\n        df[''condition''] * 5000
+          +\n        df[''grade''] * 8000 +\n        (2022 - df[''yr_built'']) * -500
+          +\n        np.random.normal(0, 50000, n_samples)\n    )\n\n    df[''price'']
+          = np.abs(df[''price''])\n    df[''age''] = 2022 - df[''yr_built'']\n\n    X
+          = df.drop([''price'', ''yr_built''], axis=1)\n    y = df[''price'']\n\n    X_train,
+          X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n    scaler
+          = StandardScaler()\n    X_train_scaled = scaler.fit_transform(X_train)\n    X_test_scaled
+          = scaler.transform(X_test)\n\n    os.makedirs(output_data_path, exist_ok=True)\n    np.save(f''{output_data_path}/X_train.npy'',
+          X_train_scaled)\n    np.save(f''{output_data_path}/X_test.npy'', X_test_scaled)\n    np.save(f''{output_data_path}/y_train.npy'',
+          y_train.values)\n    np.save(f''{output_data_path}/y_test.npy'', y_test.values)\n\n    joblib.dump(scaler,
+          f''{output_data_path}/scaler.pkl'')\n    joblib.dump(X.columns.tolist(),
+          f''{output_data_path}/feature_names.pkl'')\n\n    print(\"Data processing
+          completed\")\n    print(f\"Training samples: {X_train_scaled.shape[0]}\")\n    print(f\"Features:
+          {X_train_scaled.shape[1]}\")\n\n    from collections import namedtuple\n    ProcessDataOutput
+          = namedtuple(''ProcessDataOutput'', [''num_samples'', ''num_features'',
+          ''output_data''])\n    return ProcessDataOutput(X_train_scaled.shape[0],
+          X_train_scaled.shape[1], output_data_path)\n\ndef _serialize_int(int_value:
+          int) -> str:\n    if isinstance(int_value, str):\n        return int_value\n    if
+          not isinstance(int_value, int):\n        raise TypeError(''Value \"{}\"
+          has type \"{}\" instead of int.''.format(\n            str(int_value), str(type(int_value))))\n    return
+          str(int_value)\n\ndef _serialize_str(str_value: str) -> str:\n    if not
+          isinstance(str_value, str):\n        raise TypeError(''Value \"{}\" has
+          type \"{}\" instead of str.''.format(\n            str(str_value), str(type(str_value))))\n    return
+          str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Process
+          data func'', description='''')\n_parser.add_argument(\"--output-data\",
+          dest=\"output_data_path\", type=_make_parent_dirs_and_return_path, required=True,
+          default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\", dest=\"_output_paths\",
+          type=str, nargs=3)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = process_data_func(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_int,\n    _serialize_int,\n    _serialize_str,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:3.7"}}, "name": "Process data func", "outputs": [{"name":
+          "output_data"}, {"name": "num_samples", "type": "Integer"}, {"name": "num_features",
+          "type": "Integer"}, {"name": "output_data_2", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.22
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: train-model-func
+    container:
+      args: [--input-data, /tmp/inputs/input_data/data, --model-output, /tmp/outputs/model_output/data,
+        '----output-paths', /tmp/outputs/r2_score/data, /tmp/outputs/rmse/data]
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'pandas' 'numpy' 'scikit-learn' 'joblib' || PIP_DISABLE_PIP_VERSION_CHECK=1
+        python3 -m pip install --quiet --no-warn-script-location 'pandas' 'numpy'
+        'scikit-learn' 'joblib' --user) && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n \
+        \   os.makedirs(os.path.dirname(file_path), exist_ok=True)\n    return file_path\n\
+        \ndef train_model_func(\n    input_data ,\n    model_output \n)      :\n \
+        \   import numpy as np\n    from sklearn.linear_model import LinearRegression\n\
+        \    from sklearn.metrics import mean_squared_error, r2_score\n    import\
+        \ joblib\n    import os\n    from collections import namedtuple\n\n    print(\"\
+        Starting model training\")\n\n    # Load training data\n    X_train = np.load(f'{input_data}/X_train.npy')\n\
+        \    X_test = np.load(f'{input_data}/X_test.npy')\n    y_train = np.load(f'{input_data}/y_train.npy')\n\
+        \    y_test = np.load(f'{input_data}/y_test.npy')\n\n    # Train model\n \
+        \   model = LinearRegression()\n    model.fit(X_train, y_train)\n\n    # Evaluate\
+        \ model\n    y_pred = model.predict(X_test)\n    r2 = r2_score(y_test, y_pred)\n\
+        \    rmse = np.sqrt(mean_squared_error(y_test, y_pred))\n\n    # Save model\n\
+        \    os.makedirs(model_output, exist_ok=True)\n    model_file_path = os.path.join(model_output,\
+        \ 'model.pkl')\n    joblib.dump(model, model_file_path)\n\n    print(\"Model\
+        \ training completed\")\n    print(f\"R2 Score: {r2:.4f}\")\n    print(f\"\
+        RMSE: {rmse:.2f}\")\n\n    return namedtuple('TrainModelOutput', ['r2_score',\
+        \ 'rmse'])(r2, rmse)\n\ndef _serialize_float(float_value: float) -> str:\n\
+        \    if isinstance(float_value, str):\n        return float_value\n    if\
+        \ not isinstance(float_value, (float, int)):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of float.'.format(\n            str(float_value),\
+        \ str(type(float_value))))\n    return str(float_value)\n\nimport argparse\n\
+        _parser = argparse.ArgumentParser(prog='Train model func', description='')\n\
+        _parser.add_argument(\"--input-data\", dest=\"input_data\", type=str, required=True,\
+        \ default=argparse.SUPPRESS)\n_parser.add_argument(\"--model-output\", dest=\"\
+        model_output\", type=_make_parent_dirs_and_return_path, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=2)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = train_model_func(**_parsed_args)\n\n_output_serializers\
+        \ = [\n    _serialize_float,\n    _serialize_float,\n\n]\n\nimport os\nfor\
+        \ idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n\
+        \    except OSError:\n        pass\n    with open(output_file, 'w') as f:\n\
+        \        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: python:3.7
+    inputs:
+      artifacts:
+      - {name: process-data-func-output_data, path: /tmp/inputs/input_data/data}
+    outputs:
+      artifacts:
+      - {name: train-model-func-model_output, path: /tmp/outputs/model_output/data}
+      - {name: train-model-func-r2_score, path: /tmp/outputs/r2_score/data}
+      - {name: train-model-func-rmse, path: /tmp/outputs/rmse/data}
+    metadata:
+      annotations: {pipelines.kubeflow.org/task_display_name: Model Training, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"args": ["--input-data", {"inputPath": "input_data"}, "--model-output",
+          {"outputPath": "model_output"}, "----output-paths", {"outputPath": "r2_score"},
+          {"outputPath": "rmse"}], "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1
+          python3 -m pip install --quiet --no-warn-script-location ''pandas'' ''numpy''
+          ''scikit-learn'' ''joblib'' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m
+          pip install --quiet --no-warn-script-location ''pandas'' ''numpy'' ''scikit-learn''
+          ''joblib'' --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n    os.makedirs(os.path.dirname(file_path),
+          exist_ok=True)\n    return file_path\n\ndef train_model_func(\n    input_data
+          ,\n    model_output \n)      :\n    import numpy as np\n    from sklearn.linear_model
+          import LinearRegression\n    from sklearn.metrics import mean_squared_error,
+          r2_score\n    import joblib\n    import os\n    from collections import
+          namedtuple\n\n    print(\"Starting model training\")\n\n    # Load training
+          data\n    X_train = np.load(f''{input_data}/X_train.npy'')\n    X_test =
+          np.load(f''{input_data}/X_test.npy'')\n    y_train = np.load(f''{input_data}/y_train.npy'')\n    y_test
+          = np.load(f''{input_data}/y_test.npy'')\n\n    # Train model\n    model
+          = LinearRegression()\n    model.fit(X_train, y_train)\n\n    # Evaluate
+          model\n    y_pred = model.predict(X_test)\n    r2 = r2_score(y_test, y_pred)\n    rmse
+          = np.sqrt(mean_squared_error(y_test, y_pred))\n\n    # Save model\n    os.makedirs(model_output,
+          exist_ok=True)\n    model_file_path = os.path.join(model_output, ''model.pkl'')\n    joblib.dump(model,
+          model_file_path)\n\n    print(\"Model training completed\")\n    print(f\"R2
+          Score: {r2:.4f}\")\n    print(f\"RMSE: {rmse:.2f}\")\n\n    return namedtuple(''TrainModelOutput'',
+          [''r2_score'', ''rmse''])(r2, rmse)\n\ndef _serialize_float(float_value:
+          float) -> str:\n    if isinstance(float_value, str):\n        return float_value\n    if
+          not isinstance(float_value, (float, int)):\n        raise TypeError(''Value
+          \"{}\" has type \"{}\" instead of float.''.format(\n            str(float_value),
+          str(type(float_value))))\n    return str(float_value)\n\nimport argparse\n_parser
+          = argparse.ArgumentParser(prog=''Train model func'', description='''')\n_parser.add_argument(\"--input-data\",
+          dest=\"input_data\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--model-output\",
+          dest=\"model_output\", type=_make_parent_dirs_and_return_path, required=True,
+          default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\", dest=\"_output_paths\",
+          type=str, nargs=2)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = train_model_func(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_float,\n    _serialize_float,\n\n]\n\nimport os\nfor
+          idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:3.7"}}, "inputs": [{"name": "input_data"}], "name": "Train
+          model func", "outputs": [{"name": "model_output"}, {"name": "r2_score",
+          "type": "Float"}, {"name": "rmse", "type": "Float"}]}', pipelines.kubeflow.org/component_ref: '{}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.22
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

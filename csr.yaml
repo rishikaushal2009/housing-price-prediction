@@ -1,0 +1,39 @@
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  creationTimestamp: "2025-06-09T11:00:35Z"
+  name: cache-server.kubeflow
+  resourceVersion: "217583"
+  uid: b719641f-5360-43af-9fce-5766260bc650
+spec:
+  extra:
+    authentication.kubernetes.io/credential-id:
+    - JTI=6e29aaca-92d9-4875-b206-f2238c0735d3
+    authentication.kubernetes.io/node-name:
+    - ip-192-168-12-255.us-west-2.compute.internal
+    authentication.kubernetes.io/node-uid:
+    - 877f1bee-7a78-45b5-96b3-87ea6567eb97
+    authentication.kubernetes.io/pod-name:
+    - cache-deployer-deployment-59684bf6cf-sqpp2
+    authentication.kubernetes.io/pod-uid:
+    - 99a3224c-8aa3-459a-ba31-6e8f6b209969
+  groups:
+  - system:serviceaccounts
+  - system:serviceaccounts:kubeflow
+  - system:authenticated
+  request: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJREdEQ0NBZ0FDQVFBd1NERXZNQzBHQTFVRUF3d21jM2x6ZEdWdE9tNXZaR1U2WTJGamFHVXRjMlZ5ZG1WeQpMbXQxWW1WbWJHOTNMbk4yWXpzeEZUQVRCZ05WQkFvTURITjVjM1JsYlRwdWIyUmxjekNDQVNJd0RRWUpLb1pJCmh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBSithTkVTbzc3RmdTQTZSSW9qY1hNWFdhTDZvYnJCc2tpTUcKRXBxYzlIb1MxbUpxdmhYM05WaTVveXVLQlFLRmJLUFpaVDcwZjJnajRXU3htZEU0UFArZ0lNcWlEUXh3TGlJbwp5UTN2NkxrU203ZjRONjZVQ0ZVTmk4ejlJd1dybmdwdW5kTW1IUEc0NUNkNDc4VjZtVXgrNkJjZGViMjF4eStrCnpyREpqRkx3TFZGekhXTXduWUlLY205eitXQ1o3Y1paK2tUVWRqSlM5TVltYmJqWHc5YnYwTjJreHdHaWxSZ2gKRDVNR0N6NjBnS3N1eXNoSGQ5SU9nWCsxSTlCY0t6MDRLNzBvSEl1RkxEVUJ2YURHVkdhSHJzVVdPTWl3NW5ydApYTXBwRDg2bjdmVSt1cTJ3YzNMbTQ3Y3lmMUJWWkt4NDF5ZjZFZVlMQStuQVZCbzlwdGNDQXdFQUFhQ0JpakNCCmh3WUpLb1pJaHZjTkFRa09NWG93ZURBSkJnTlZIUk1FQWpBQU1Bc0dBMVVkRHdRRUF3SUY0REFUQmdOVkhTVUUKRERBS0JnZ3JCZ0VGQlFjREFUQkpCZ05WSFJFRVFqQkFnZ3hqWVdOb1pTMXpaWEoyWlhLQ0ZXTmhZMmhsTFhObApjblpsY2k1cmRXSmxabXh2ZDRJWlkyRmphR1V0YzJWeWRtVnlMbXQxWW1WbWJHOTNMbk4yWXpBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFMTW9EM3FmbzY3MnRSZHFFeE1PRmNxZ1FPdUZ0dTZhNzJidGxBQXZKVWVhSTN6aUIKT256TC92WXlNRXlXdkNqSjFOeU0vMG1kQ1ZvMk1kTE5WazlUSFAxRXhvZFZCUmNEVHYySU5GendrVlN3WUtBUwppZFp2TEd6cEZLaCtoV1h4VTF4UFhMMzFYZTFIMStGaS9EaXJJSmNsSDFsSjlMdVFkaEJMVi9xcjJzcGc1YmV4CjlBcy8vL1BxMlY2V3k3QkFiVVFaVzJqOFJ0eHhXZjUvWGlqeU0yd3ZYalpXNXVSOWlyTm4xOTFVRyt1TisrOEoKTzYrUXBTYW4yZyt2TWhDVG55eFZhMnJnelNaOEZVZU9URW5jSHZRaTIwbExaa0lOSDhwVXdkVzEva0dWT0ZLUAorMElMakJSQmhzQ0ZrQm9iUFBHZXVrV1FoVUZWQzdlR3hHakhyUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQo=
+  signerName: kubernetes.io/kubelet-serving
+  uid: 0b5168f3-ed9b-48e1-9853-b9aca7cb4585
+  usages:
+  - digital signature
+  - key encipherment
+  - server auth
+  username: system:serviceaccount:kubeflow:kubeflow-pipelines-cache-deployer-sa
+status:
+  conditions:
+  - lastTransitionTime: "2025-06-09T11:00:36Z"
+    lastUpdateTime: "2025-06-09T11:00:36Z"
+    message: This CSR was approved by kubectl certificate approve.
+    reason: KubectlApprove
+    status: "True"
+    type: Approved
