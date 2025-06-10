@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: housing-price-prediction-pipeline-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.22, pipelines.kubeflow.org/pipeline_compilation_time: '2025-06-10T15:30:06.845285',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.22, pipelines.kubeflow.org/pipeline_compilation_time: '2025-06-10T16:00:15.917667',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train and deploy a linear
       regression model for housing price prediction", "name": "Housing Price Prediction
       Pipeline"}'}
@@ -128,9 +128,9 @@ spec:
       - sh
       - -c
       - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
-        'pandas' 'numpy' 'joblib' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip
-        install --quiet --no-warn-script-location 'pandas' 'numpy' 'joblib' --user)
-        && "$0" "$@"
+        'pandas' 'numpy' 'joblib' 'scikit-learn' || PIP_DISABLE_PIP_VERSION_CHECK=1
+        python3 -m pip install --quiet --no-warn-script-location 'pandas' 'numpy'
+        'joblib' 'scikit-learn' --user) && "$0" "$@"
       - sh
       - -ec
       - |
@@ -178,17 +178,18 @@ spec:
           "data_input"}, "--prediction-output", {"outputPath": "prediction_output"}],
           "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip
           install --quiet --no-warn-script-location ''pandas'' ''numpy'' ''joblib''
-          || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
-          ''pandas'' ''numpy'' ''joblib'' --user) && \"$0\" \"$@\"", "sh", "-ec",
-          "program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3
-          -u \"$program_path\" \"$@\"\n", "def _make_parent_dirs_and_return_path(file_path:
-          str):\n    import os\n    os.makedirs(os.path.dirname(file_path), exist_ok=True)\n    return
-          file_path\n\ndef predict_func(\n    model_input ,\n    data_input ,\n    prediction_output
-          \n)  :\n    import numpy as np\n    import pandas as pd\n    import joblib\n    import
-          os\n\n    print(\"Starting prediction generation\")\n\n    # Load test data\n    X_test
-          = np.load(f''{data_input}/X_test.npy'')\n\n    # Load model - try different
-          paths\n    model = None\n\n    # Try loading from directory\n    if os.path.isdir(model_input):\n        model_path
-          = os.path.join(model_input, ''model.pkl'')\n        if os.path.exists(model_path):\n            model
+          ''scikit-learn'' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install
+          --quiet --no-warn-script-location ''pandas'' ''numpy'' ''joblib'' ''scikit-learn''
+          --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def _make_parent_dirs_and_return_path(file_path: str):\n    import os\n    os.makedirs(os.path.dirname(file_path),
+          exist_ok=True)\n    return file_path\n\ndef predict_func(\n    model_input
+          ,\n    data_input ,\n    prediction_output \n)  :\n    import numpy as np\n    import
+          pandas as pd\n    import joblib\n    import os\n\n    print(\"Starting prediction
+          generation\")\n\n    # Load test data\n    X_test = np.load(f''{data_input}/X_test.npy'')\n\n    #
+          Load model - try different paths\n    model = None\n\n    # Try loading
+          from directory\n    if os.path.isdir(model_input):\n        model_path =
+          os.path.join(model_input, ''model.pkl'')\n        if os.path.exists(model_path):\n            model
           = joblib.load(model_path)\n            print(f\"Model loaded from: {model_path}\")\n\n    #
           Try loading directly if it''s a file\n    if model is None and os.path.isfile(model_input)
           and model_input.endswith(''.pkl''):\n        model = joblib.load(model_input)\n        print(f\"Model

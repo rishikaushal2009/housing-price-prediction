@@ -177,7 +177,7 @@ def predict_func(
 
 predict_model_op = create_component_from_func(
     predict_func,
-    packages_to_install=["pandas", "numpy", "joblib"]
+    packages_to_install=["pandas", "numpy", "joblib", "scikit-learn"]
 )
 
 # ------------------------------
