@@ -1,0 +1,471 @@
+    1  cat /etc/*release*
+    2  conda activate mlops-env
+    3  pip install conda
+    4  python -v
+    5  python3 -v
+    6  python3 install pip
+    7  sudo apt-get install  pip
+    8  sudo apt-get install python3-pip
+    9  sudo apt-get install *pip*
+   10  sudo apt-get install python-pip
+   11  sudo apt-get install python3-pip
+   12  sudo pip install conda 
+   13  sudo apt update
+   14  sudo apt install python3-pip -y
+   15  pip3 --version
+   16  conda create -n mlops-env  python=3.11 -y
+   17  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+   18  ls -ltr
+   19  bash Miniconda3-latest-Linux-x86_64.sh
+   20  source ~/miniconda3/bin/activate
+   21  conda init
+   22  source ~/.bashrc
+   23  conda --version
+   24  conda create -n mlops-env python=3.11 -y
+   25  conda activate mlops-env
+   26  conda install --file requirements.txt -c conda-forge
+   27  jupyter notebook
+   28  conda install notebook -y
+   29  jupyter notebook
+   30  conda install pysqlite2 -y
+   31  conda install -c conda-forge pysqlite2 -y
+   32  import sqlite3 as sqlite
+   33  conda install sqlite -y
+   34  conda install notebook -y
+   35  conda update -n base -c defaults conda
+   36  conda install sqlite -y
+   37  conda install notebook -y
+   38  python -c "import sqlite3; print(sqlite3.sqlite_version)"
+   39  conda uninstall notebook -y
+   40  conda uninstall sqlite -y
+   41  jupyter notebook
+   42  jupyter
+   43  jupyter notebook-script
+   44  jupyter notebook-script.py
+   45  jupyter run
+   46  pip show evidently
+   47  from evidently import ColumnMapping
+   48  python3
+   49  ls -ltr
+   50  python3 ./eda/data_ingestor.py 
+   51  python3 ./eda/data_inspection.py 
+   52  python3 ./eda/data_analysis.py 
+   53  python3 ./eda/missing_value_handling.py 
+   54  python3 ./eda/data_encoding.py 
+   55  sudo apt-get install docker
+   56  docker ps -a
+   57  docker images
+   58  conda deactivate
+   59  sudo apt-get install docker
+   60  docker ps -a
+   61  #!/bin/bash
+   62  # Variables
+   63  CLUSTER_NAME="housing-ml-cluster"
+   64  REGION="us-west-2"
+   65  NODE_GROUP_NAME="housing-workers"
+   66  # Create EKS cluster
+   67  eksctl create cluster   --name $CLUSTER_NAME   --region $REGION   --nodegroup-name $NODE_GROUP_NAME   --node-type m5.large   --nodes 3   --nodes-min 1   --nodes-max 4   --managed
+   68  # Update kubeconfig
+   69  aws eks update-kubeconfig --region $REGION --name $CLUSTER_NAME
+   70  docker ps -a
+   71  sudo apt-get install docker
+   72  sudo apt update
+   73  sudo apt install apt-transport-https ca-certificates curl software-properties-common
+   74  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   75  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+   76  apt-cache policy docker-ce
+   77  sudo apt install docker-ce
+   78  sudo systemctl status dockersudo systemctl status docker
+   79  sudo  docker ps -a
+   80  sudo  docker images
+   81  aws config
+   82  sudo apt install awscli
+   83  aws config
+   84  aws configure
+   85  sh ./setup-eks.sh
+   86  sh setup-eks.sh
+   87  ./setup-eks.sh
+   88  sh ./scripts/setup-eks.sh
+   89  ./scripts/setup-eks.sh
+   90  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+   91  sudo mv /tmp/eksctl /usr/local/bin
+   92  ./scripts/setup-eks.sh
+   93  kubectl get nodes
+   94  aws eks update-kubeconfig --region us-west-2 --name housing-ml-cluster
+   95  kubectl get nodes
+   96  sudo snap install kubectl
+   97  sudo apt-get install kubectl
+   98  sudo apt-get update
+   99  sudo apt-get install -y apt-transport-https ca-certificates curl
+  100  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  101  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  102  sudo apt-get update
+  103  sudo apt-get install -y kubectl
+  104  kubectl version --client
+  105  kubectl get nodes
+  106  kubectl cluster-info
+  107  aws eks update-kubeconfig --region us-west-2 --name housing-ml-cluster
+  108  kubectl get nodes
+  109  ./scripts/install-kubeflow.sh 
+  110  aws eks update-kubeconfig --region us-west-2 --name housing-ml-cluster --alias housing-ml-cluster
+  111  ./scripts/install-kubeflow.sh 
+  112  sudo apt-get uninstall -y kubectl
+  113  sudo apt-get remove -y kubectl
+  114  ./scripts/setup-eks.sh
+  115  eksctl delete cluster --region=us-west-2 --name=housing-ml-cluster
+  116  aws eks list-clusters --region us-west-2
+  117  aws eks describe-cluster --region us-west-2 --name housing-ml-cluster
+  118  ./scripts/setup-eks.sh
+  119  eksctl delete cluster --region us-west-2 --name housing-ml-cluster --wait
+  120  eksctl delete cluster --region us-west-2 --name housing-ml-cluster-cluster --wait
+  121  # If that fails, manually delete CloudFormation stacks
+  122  aws cloudformation delete-stack --region us-west-2 --stack-name eksctl-housing-ml-cluster-nodegroup-housing-workers
+  123  aws cloudformation delete-stack --region us-west-2 --stack-name eksctl-housing-ml-cluster-cluster
+  124  ./scripts/setup-eks.sh
+  125  aws cloudformation delete-stack --region us-west-2 --stack-name eksctl-housing-ml-cluster-cluster
+  126  aws cloudformation delete-stack --region us-west-2 --stack-name eksctl-housing-ml-cluster-nodegroup-housing-workers
+  127  ls -ltr
+  128  mkdir -p src/{data,model,pipeline,deployment} && mkdir -p k8s && mkdir -p docker
+  129  conda deactivate
+  130  ls -ltr
+  131  cd src
+  132  ls -ltr
+  133  cd data
+  134  ls -ltr
+  135  cd ..
+  136  cd model
+  137  cd ..
+  138  cd deployment/
+  139  ls -ltr
+  140  mv ../model/predictor.py .
+  141  ls
+  142  cd ..
+  143  cd pipeline/
+  144  pip install kfp==1.8.22
+  145  ./scripts/setup-eks.sh 
+  146  pip install --upgrade awscli
+  147  aws eks update-kubeconfig --region us-west-2 --name housing-ml-cluster1
+  148  kubectl get nodes
+  149  scripts/install-kubeflow.sh
+  150  kubectl get deployments -n default
+  151  kubectl get namespaces
+  152  kubectl get deployments -n kubeflow
+  153  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  154  kubectl get t deployments -n kubeflow
+  155  kubectl get deployments -n kubeflow
+  156  kubectl get svc -n kubeflow
+  157  curl 10.100.17.28:80
+  158  kubectl get events -n kubeflow
+  159  kubectl get events -n kubeflow | grep ml-pipeline-ui
+  160  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  161  kubectl get deployment -n kube-system aws-load-balancer-controller
+  162  kubectl get deployment -n kubeflow aws-load-balancer-controller
+  163  curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.4/docs/install/iam_policy.json
+  164  aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+  165  eksctl create iamserviceaccount --cluster=housing-ml-cluster1 --namespace=kubeflow --name=aws-load-balancer-controller --role-name "AmazonEKSLoadBalancerControllerRole" --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy --approve
+  166  helm repo add eks https://aws.github.io/eks-charts
+  167  sudo snap install helm
+  168  sudo snap install helm --classic
+  169  helm repo add eks https://aws.github.io/eks-charts
+  170  helm repo update
+  171  helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kubeflow --set clusterName=housing-ml-cluster1 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+  172  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  173  kubectl get deployment -n kube-system aws-load-balancer-controller
+  174  kubectl get deployment -n kubeflow aws-load-balancer-controller
+  175  kubectl delete deployment aws-load-balancer-controller -n kubeflow
+  176  kubectl scale deployment aws-load-balancer-controller --replicas=0 -n kubeflow
+  177  kubectl delete serviceaccount aws-load-balancer-controller -n kubeflow
+  178  aws iam detach-role-policy   --role-name AmazonEKSLoadBalancerControllerRole   --policy-arn arn:aws:iam::386892419525:policy/AWSLoadBalancerControllerIAMPolicy
+  179  aws iam delete-role --role-name AmazonEKSLoadBalancerControllerRole
+  180  aws iam delete-policy   --policy-arn arn:aws:iam::386892419525:policy/AWSLoadBalancerControllerIAMPolicy
+  181  helm uninstall aws-load-balancer-controller -n kubeflow
+  182  kubectl delete serviceaccount aws-load-balancer-controller -n kubeflow
+  183  kubectl get deployment -n kube-system aws-load-balancer-controller
+  184  eksctl create iamserviceaccount --cluster=housing-ml-cluster1 --namespace=kube-system --name=aws-load-balancer-controller --role-name "AmazonEKSLoadBalancerControllerRole" --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy --approve
+  185  eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  186  aws cloudformation delete-stack   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  187  aws cloudformation describe-stacks   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  188  eksctl create iamserviceaccount --cluster=housing-ml-cluster1 --namespace=kube-system --name=aws-load-balancer-controller --role-name "AmazonEKSLoadBalancerControllerRole" --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy --approve
+  189  aws cloudformation describe-stack-events   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  190  aws iam list-roles | grep AmazonEKSLoadBalancerControllerRole
+  191  aws cloudformation delete-stack   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kubeflow-aws-load-balancer-controller
+  192  aws cloudformation delete-stack   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  193  eksctl create iamserviceaccount --cluster=housing-ml-cluster1 --namespace=kube-system --name=aws-load-balancer-controller --role-name "AmazonEKSLoadBalancerControllerRole" --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy --approve
+  194  aws cloudformation delete-stack   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kube-system-aws-load-balancer-controller
+  195  aws cloudformation delete-stack   --stack-name eksctl-housing-ml-cluster1-addon-iamserviceaccount-kubeflow-aws-load-balancer-controller
+  196  eksctl create iamserviceaccount   --cluster=housing-ml-cluster1   --namespace=kube-system   --name=aws-load-balancer-controller   --role-name AmazonEKSLoadBalancerControllerRoleKubeSystem   --attach-policy-arn arn:aws:iam::386892419525:policy/AWSLoadBalancerControllerIAMPolicy   --approve
+  197  curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.4/docs/install/iam_policy.json
+  198  aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+  199  eksctl create iamserviceaccount --cluster=housing-ml-cluster1 --namespace=kube-system --name=aws-load-balancer-controller --role-name "AmazonEKSLoadBalancerControllerRole" --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy --approve
+  200  helm repo add eks https://aws.github.io/eks-charts
+  201  helm repo update
+  202  helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=housing-ml-cluster1 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+  203  kubectl get deployment -n kube-system aws-load-balancer-controller
+  204  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  205  scripts/setup-environment.sh
+  206  download_
+  207  pip install kfp
+  208  python src/pipeline/housing_pipeline.py
+  209  pip show kfp
+  210  pip install kfp==1.8.22 --force-reinstall
+  211  python src/pipeline/housing_pipeline.py
+  212  pip install lib2to3
+  213  conda install lib2to3
+  214  python src/pipeline/housing_pipeline.py
+  215  python -m py_compile src/pipeline/housing_pipeline.py
+  216  python src/pipeline/housing_pipeline.py
+  217  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  218  python ./scripts/run_pipeline.py --host http://localhost:8080
+  219  python ./scripts/run_pipeline.py --host https://<your-kubeflow-domain>/pipeline
+  220  python ./scripts/run_pipeline.py --host https://housing-price-predictor/pipeline
+  221  python ./scripts/run_pipeline.py --host http://housing-price-predictor/pipeline
+  222  curl http://localhost:8080/apis/v1beta1/healthz
+  223  NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+  224  ml-pipeline     ClusterIP   10.96.216.123   <none>        80/TCP     10m
+  225  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  226  kubectl get svc m -n kubeflow
+  227  curl http://localhost:8080/apis/v1beta1/healthz
+  228  python ./scripts/run_pipeline.py --host http://localhost:8080
+  229  kubectl get pods -n kubeflow
+  230  kubectl describe pod mysql-976fbfd4f-9j2sf -n kubeflow
+  231  kubectl describe pod minio-847b65dd88-bzrrp -n kubeflow
+  232  kubectl describe pod ml-pipeline-84b9cc9c4d-klr4z -n kubeflow
+  233  kubectl get configmap pipeline-install-config -n kubeflow -o yaml
+  234  kubectl get secret mysql-secret -n kubeflow
+  235  kubectl get secret mysql-secret -n kubeflow -o yaml
+  236  kubectl edit deployment ml-pipeline -n kubeflow
+  237  kubectl exec -it ml-pipeline-84b9cc9c4d-klr4z -n kubeflow -- /bin/sh
+  238  kubectl get pods -n kubeflow
+  239  kubectl exec -it ml-pipeline-6bd6bcd6f6-k5jdn -n kubeflow -- /bin/sh
+  240  curl http://localhost:8080
+  241  curl http://localhost:8080/apis/v1beta1/healthz
+  242  kubectl describe pod mysql-976fbfd4f-9j2sf -n kubeflow
+  243  kubectl describe pod minio-847b65dd88-bzrrp -n kubeflow
+  244  kubectl get pvc -n kubeflow
+  245  kubectl get pv -n kubeflow
+  246  kubectl get sc
+  247  kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+  248  kubectl delete pvc minio-pvc -n kubeflow
+  249  kubectl delete pvc mysql-pv-claim -n kubeflow
+  250  kubectl rollout restart deployment minio -n kubeflow
+  251  kubectl rollout restart deployment mysql -n kubeflow
+  252  kubectl get pods -n kubeflow
+  253  kubectl get pv -n kubeflow
+  254  kubectl get pvc -n kubeflow
+  255  kubectl get pods -n kubeflow
+  256  kubectl apply -f pv.yaml
+  257  kubectl apply -f ./k8s/pv.yaml
+  258  kubectl get pvc -n kubeflow
+  259  kubectl get pv -n kubeflow
+  260  kubectl get pvc -n kubeflow
+  261  kubectl get pvc 
+  262  kubectl get pods -n kubeflow
+  263  kubectl get pvc -n kubeflow
+  264  kubectl rollout restart deployment minio -n kubeflow
+  265  kubectl rollout restart deployment mysql -n kubeflow
+  266  kubectl get pvc -n kubeflow
+  267  kubectl get pods -n kubeflow
+  268  kubectl describe pod ml-pipeline-persistenceagent-55b88479bc-hbzlp -n kubeflow
+  269  kubectl logs ml-pipeline-persistenceagent-55b88479bc-hbzlp -n kubeflow
+  270  kubectl apply -f kubeflow-storage.yaml
+  271  kubectl apply -f ./k8s/pvc.yaml
+  272  kubectl get pvc -n kubeflow
+  273  kubectl get pv -n kubeflow
+  274  kubectl get pvc -n kubeflow
+  275  kubectl delete pvc minio-pvc -n kubeflow
+  276  kubectl delete pvc mysql-pv-claim -n kubeflow
+  277* 
+  278  kubectl delete pv mysql-pv  -n kubeflow
+  279  kubectl apply -f ./k8s/pv.yaml
+  280  kubectl delete pv mysql-pvc  -n kubeflow
+  281  kubectl apply -f ./k8s/pvc.yaml
+  282  kubectl get pvc -n kubeflow
+  283  kubectl get pv -n kubeflow
+  284  kubectl get pvc -n kubeflow
+  285  kubectl get storageclass
+  286  kubectl get nodes -o wide
+  287  kubectl get sc gp3   # If exists, use this
+  288  kubectl get sc gp3
+  289  eksctl utils install-vpc-controllers --region <your-region> --cluster <your-cluster-name>
+  290  eksctl utils install-vpc-controllers --region us-west-2 --cluster housing-ml-cluster1
+  291  eksctl version
+  292  eksctl create iamserviceaccount   --name vpc-resource-controller   --namespace kube-system   --cluster housing-ml-cluster1   --attach-policy-arn arn:aws:iam::aws:policy/AmazonVPCResourceController   --approve   --region us-west-2
+  293  kubectl apply -f https://raw.githubusercontent.com/aws/amazon-vpc-resource-controller-k8s/main/config/controller/deployment.yaml
+  294  kubectl get pvc -n kubeflow
+  295  kubectl delete  pvc minio-pvc  -n kubeflow
+  296  kubectl delete  pvc mysql-pv-claim  -n kubeflow
+  297  kubectl apply -f ./k8s/pvc.yaml
+  298  kubectl get pvc -n kubeflow
+  299  kubectl get pods -n kubeflow
+  300  kubectl get pv -n kubeflow
+  301  kubectl get pvc -n kubeflow
+  302  kubectl get storageclass
+  303  eksctl create addon --name aws-ebs-csi-driver --cluster housing-ml-cluster1 --region us-west-2 --service-account-role-arn arn:aws:iam::<account-id>:role/AmazonEKS_EBS_CSI_DriverRole
+  304  eksctl create addon --name aws-ebs-csi-driver --cluster housing-ml-cluster1 --region us-west-2 --service-account-role-arn arn:aws:iam::386892419525:role/AmazonEKS_EBS_CSI_DriverRole
+  305  kubectl delete pvc minio-pvc mysql-pv-claim -n kubeflow
+  306  kubectl rollout restart deployment ml-pipeline minio mysql -n kubeflow
+  307  kubectl get pvc -n kubeflow
+  308  kubectl get pods -n kubeflow
+  309  kubectl get pv -n kubeflow
+  310  kubectl get pvc -n kubeflow
+  311  kubectl apply -f ./k8s/pvc.yaml
+  312  kubectl get pvc -n kubeflow
+  313  kubectl get sc gp2
+  314  eksctl create addon   --name aws-ebs-csi-driver   --cluster housing-ml-cluster1   --region us-west-2   --force
+  315  eksctl get addons --cluster housing-ml-cluster1 --region us-west-2
+  316  kubectl apply -f gp2-csi.yaml
+  317  kubectl apply -f ./k8s/sc.yaml
+  318  kubectl patch storageclass gp2-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+  319  kubectl get pvc -n kubeflow
+  320  kubectl delete pvc minio-pvc mysql-pv-claim -n kubeflow
+  321  kubectl apply -f ./k8s/pvc.yaml
+  322  kubectl get pvc -n kubeflow
+  323  kubectl get pods -n kube-system | grep ebs
+  324  kubectl get sc gp2 -o yaml
+  325  kubectl describe pvc minio-pvc -n kubeflow
+  326  eksctl delete addon   --name aws-ebs-csi-driver   --cluster housing-ml-cluster1   --region us-west-2
+  327  eksctl create iamserviceaccount   --name ebs-csi-controller-sa   --namespace kube-system   --cluster housing-ml-cluster1   --region us-west-2   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole
+  328  eksctl create addon   --name aws-ebs-csi-driver   --cluster housing-ml-cluster1   --region us-west-2   --service-account-role-arn arn:aws:iam::<your-account-id>:role/AmazonEKS_EBS_CSI_DriverRole \
+  329  eksctl create addon   --name aws-ebs-csi-driver   --cluster housing-ml-cluster1   --region us-west-2   --service-account-role-arn arn:aws:iam::386892419525:role/AmazonEKS_EBS_CSI_DriverRole   --force
+  330  kubectl get sa ebs-csi-controller-sa -n kube-system -o yaml
+  331  kubectl delete pvc minio-pvc -n kubeflow
+  332  kubectl get pvc minio-pvc -n kubeflow
+  333  kubectl patch pvc minio-pvc -n kubeflow   -p '{"metadata":{"finalizers":null}}' --type=merge
+  334  kubectl get pvc minio-pvc -n kubeflow
+  335  kubectl apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: gp2-csi
+EOF
+
+  336  kubectl get pvc -n kubeflow
+  337  kubectl get pod -n kubeflow -o wide | grep minio
+  338  kubectl delete pod minio-7d45d559fd-jtkzj -n kubeflow
+  339  kubectl get pod -n kubeflow -o wide | grep minio
+  340  kubectl get pvc -n kubeflow
+  341  kubectl rollout restart deployment ml-pipeline minio mysql -n kubeflow
+  342  kubectl get pods -n kubeflow
+  343  kubectl describe pod cache-deployer-deployment-59684bf6cf-qzlcv -n kubeflow
+  344  kubectl logs cache-deployer-deployment-59684bf6cf-qzlcv -n kubeflow --container main
+  345  kubectl get pods -n kubeflow
+  346  kubectl delete  pod cache-deployer-deployment-59684bf6cf-qzlcv -n kubeflow
+  347  kubectl delete  pod cache-server-6cc6c7698d-6xvnr -n kubeflow
+  348  kubectl get pods -n kubeflow
+  349  kubectl describe pod cache-server-6cc6c7698d-tl52l -n kubeflow
+  350  openssl req -x509 -nodes -days 365 -newkey rsa:2048   -keyout tls.key   -out tls.crt   -subj "/CN=cache-server.kubeflow.svc"
+  351  kubectl create secret tls webhook-server-tls   --cert=tls.crt   --key=tls.key   -n kubeflow
+  352  kubectl delete pod -n kubeflow -l app=cache-server
+  353  kubectl get pods -n kubeflow
+  354  kubectl describe pod cache-server-6cc6c7698d-54d7q  -n kubeflow
+  355  kubectl get pods -n kubeflow | grep cache-server
+  356  openssl req -x509 -nodes -days 365   -newkey rsa:2048   -keyout tls.key   -out tls.crt   -subj "/CN=cache-server.kubeflow.svc"
+  357  kubectl create secret tls webhook-server-tls   --cert=tls.crt   --key=tls.key   -n kubeflow
+  358  kubectl delete pod -n kubeflow -l app=cache-server
+  359  kubectl get pods -n kubeflow | grep cache-server
+  360  kubectl get pods -n kubeflow
+  361  kubectl delete pod cache-deployer-deployment-59684bf6cf-8spsc  -n kubeflow 
+  362  kubectl get pods -n kubeflow
+  363  kubectl delete pod cache-server-6cc6c7698d-tqqwt -n kubeflow
+  364  kubectl get pods -n kubeflow
+  365  kubectl logs cache-deployer-deployment-59684bf6cf-sqpp2  -n kubeflow --container main
+  366  kubectl get clusterissuers.cert-manager.io
+  367  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml
+  368  kubectl get pods -n cert-manager
+  369  kubectl get secret webhook-server-tls -n kubeflow
+  370  kubectl get pods -n kubeflow | grep cache
+  371  openssl req -x509 -nodes -days 365   -newkey rsa:2048   -keyout tls.key   -out tls.crt   -subj "/CN=cache-server.kubeflow.svc"
+  372  kubectl create secret tls webhook-server-tls   --cert=tls.crt   --key=tls.key   -n kubeflow
+  373  kubectl delete pod -n kubeflow -l app=cache-server
+  374  kubectl get pods -n kubeflow | grep cache
+  375  kubectl describe pod cache-server-6cc6c7698d-n6ftm -kubeflow
+  376  kubectl describe pod cache-server-6cc6c7698d-n6ftm -n kubeflow
+  377  kubectl logs cache-server-6cc6c7698d-n6ftm  -n kubeflow --container server
+  378  # Step 1: Generate the key + cert if not already
+  379  openssl req -x509 -nodes -days 365   -newkey rsa:2048   -keyout key.pem   -out cert.pem   -subj "/CN=cache-server.kubeflow.svc"
+  380  # Step 2: Create the secret with expected filenames
+  381  kubectl create secret generic webhook-server-tls   --from-file=cert.pem=cert.pem   --from-file=key.pem=key.pem   -n kubeflow
+  382  kubectl delete pod -l app=cache-server -n kubeflow
+  383  kubectl get pods -n kubeflow | grep cache
+  384  kubectl describe pod cache-deployer-deployment-59684bf6cf-sqpp2 -n kubeflow
+  385  kubectl logs cache-deployer-deployment-59684bf6cf-sqpp2  -n kubeflow --container main
+  386  kubectl get csr cache-server.kubeflow -o yaml > csr.yaml
+  387  kubectl get csr cache-server.kubeflow -o jsonpath='{.spec.request}' | base64 -d > server.csr
+  388  openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
+  389  Certificate request self-signature ok
+  390  subject=CN = "system:node:cache-server.kubeflow.svc;", O = system:nodes
+  391  Could not open file or uri for loading CA certificate from ca.crt
+  392  00D523C0EC7F0000:error:16000069:STORE routines:ossl_store_get0_loader_int:unregistered scheme:crypto/store/store_register.c:237:scheme=file
+  393  00D523C0EC7F0000:error:80000002:system library:file_open:No such file or directory:providers/implementations/storemgmt/file_store.c:267:calling stat(ca.crt)
+  394  openssl genrsa -out ca.key 4096
+  395  openssl req -x509 -new -nodes -key ca.key -subj "/CN=kubeflow.local" -days 3650 -out ca.crt
+  396  kubectl get csr cache-server.kubeflow -o jsonpath='{.spec.request}' | base64 -d > server.csr
+  397  openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
+  398  kubectl create secret tls webhook-server-tls   --cert=server.crt   --key=server.key   -n kubeflow
+  399  kubectl get pods -n kubeflow | grep cache
+  400  kubectl delete  pod cache-deployer-deployment-59684bf6cf-sqpp2 -n kubeflow
+  401  kubectl get pods -n kubeflow | grep cache
+  402  kubectl get pods -n kubeflow 
+  403  python ./scripts/run_pipeline.py
+  404  kubectl get svc ml-pipeline-ui -n kubeflow -w
+  405  python ./scripts/run_pipeline.py --host 10.100.17.28
+  406  import kfp
+  407  python run_pipeline.py --host https://kubeflow.mycompany.com/pipeline
+  408  python ./scripts/run_pipeline.py --host https://kubeflow.mycompany.com/pipeline
+  409  kubectl get ingress -n kubeflow
+  410  kubectl get svc -n kubeflow
+  411  python ./scripts/run_pipeline.py --host 10.100.78.130:8888
+  412  echo KUBEFLOW_PIPELINES_HOST
+  413  echo $KUBEFLOW_PIPELINES_HOST
+  414  python ./scripts/run_pipeline.py --host http://housing-price-predictor-service:8080
+  415  python ./scripts/run_pipeline.py --host housing-price-predictor-service
+  416  kubectl port-forward -n kubeflow svc/ml-pipeline 8080:80
+  417  kubectl port-forward -n kubeflow svc/ml-pipeline 8080:8888
+  418  kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8080:80
+  419  kubectl port-forward -n kubeflow svc/ml-pipeline 8080:8888
+  420  sudo docker ps - a
+  421  sudo docker ps -a
+  422  pwd
+  423  cd ~
+  424  ls
+  425  cd ..
+  426  ls
+  427  cd rishi
+  428  ls 
+  429  df -h
+  430  cd ../..
+  431  pwd
+  432  cd /mnt/c
+  433  ls
+  434  cd Users
+  435  ls
+  436  cd Rishi
+  437  ls
+  438  cd Downloads/
+  439  ls
+  440  sudo apt-get install tar
+  441  gunzip  predict-func-prediction_output.tgz 
+  442  tar -xvz predict-func-prediction_output predict-func-prediction_output.tar 
+  443  tar -xfvz predict-func-prediction_output predict-func-prediction_output.tar 
+  444  tar -xf predict-func-prediction_output predict-func-prediction_output.tar 
+  445* tar -xf pr
+  446  ls predict-func-prediction_output.tar ls -ltr |grep pred
+  447  ls -ltr |grep pred
+  448* 
+  449  gunzip  process-data-func-output_data.tgz 
+  450  cd ~
+  451  ls
+  452  cd /mnt/c/Users/Rishi/Mlops Proj/housing price prediction
+  453  cd "/mnt/c/Users/Rishi/Mlops Proj/housing price prediction"
+  454  python readnumpy.py 
+  455  python readnumpy.py
+  456  history
+  457  history >> useful-commands.txt
